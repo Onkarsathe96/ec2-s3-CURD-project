@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'AWS_EC2'  // Your EC2 node label in Jenkins
+        label 'AWS_EC2_Big_node'  // Your EC2 node label in Jenkins
     }
     
     environment {
@@ -50,18 +50,15 @@ pipeline {
                 echo '🐍 Setting up Python virtual environment...'
                 sh '''
                     # Install Python if not present (for Ubuntu)
-                    if ! command -v python3 &> /dev/null; then
-                        sudo apt-get update
-                        sudo apt-get install -y python3 python3-pip python3-venv
-                    fi
+                   
                     
                     # Create virtual environment
                     python3 -m venv ${VENV_PATH}
                     
-                    # Activate and upgrade pip
-                    source ${VENV_PATH}/bin/activate
+                    # Activate and upgrade pip - also changed source to . for posix and Jenkinfile shell format
+                    . ${VENV_PATH}/bin/activate
                     pip install --upgrade pip
-                    
+                    pwd
                     # Install dependencies
                     pip install -r requirements.txt
                     
@@ -76,7 +73,7 @@ pipeline {
             steps {
                 echo '🔍 Running code quality checks...'
                 sh '''
-                    source ${VENV_PATH}/bin/activate
+                    . ${VENV_PATH}/bin/activate
                     
                     # Install linting tools
                     pip install flake8 black isort
@@ -100,7 +97,7 @@ pipeline {
             steps {
                 echo '🧪 Running unit tests...'
                 sh '''
-                    source ${VENV_PATH}/bin/activate
+                    . ${VENV_PATH}/bin/activate
                     
                     # Set test environment
                     export TESTING=true
@@ -118,11 +115,14 @@ pipeline {
             post {
                 always {
                     // Publish test results
-                    junit allowEmptyResults: true, testResults: 'test-results.xml'
-                    
-                    // Archive coverage report
-                    archiveArtifacts artifacts: 'htmlcov/**/*', allowEmptyArchive: true
-                    archiveArtifacts artifacts: 'coverage.xml', allowEmptyArchive: true
+                    junit allowEmptyResults: true,
+                          testResults: 'test-results.xml'
+
+                    archiveArtifacts artifacts: 'htmlcov/**/*',
+                         allowEmptyArchive: true
+
+                    archiveArtifacts artifacts: 'coverage.xml',
+                         allowEmptyArchive: true
                 }
             }
         }
@@ -137,12 +137,13 @@ pipeline {
             steps {
                 echo '🔗 Running integration tests...'
                 sh '''
-                    source ${VENV_PATH}/bin/activate
+                    . ${VENV_PATH}/bin/activate
                     
                     # Start the Flask app in background for testing
                     export FLASK_DEBUG=false
                     export PORT=5001
-                    
+
+                    cd ec2-s3-CURD-project
                     python app.py &
                     APP_PID=$!
                     
@@ -179,7 +180,7 @@ pipeline {
             steps {
                 echo '📤 Testing file upload to S3...'
                 sh '''
-                    source ${VENV_PATH}/bin/activate
+                    . ${VENV_PATH}/bin/activate
                     
                     # Start the Flask app in background
                     export FLASK_DEBUG=false
@@ -343,4 +344,3 @@ EOF
         }
     }
 }
-
