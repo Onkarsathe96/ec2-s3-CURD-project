@@ -1,4 +1,4 @@
-# S3 Image Manager
+# S3 Image Manager - With EC2
 
 A Flask web application for uploading, managing, and organizing images in AWS S3. This project includes a complete CI/CD pipeline using Jenkins.
 
