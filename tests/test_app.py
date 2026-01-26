@@ -12,7 +12,7 @@ from moto import mock_aws
 # Set test environment variables before importing app
 os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
-os.environ['AWS_REGION'] = 'us-east-1'
+os.environ['AWS_REGION'] = 'ap-south-1'
 os.environ['S3_BUCKET_NAME'] = 'test-bucket'
 os.environ['SECRET_KEY'] = 'test-secret-key'
 
@@ -28,7 +28,7 @@ def client():
         yield client
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_s3():
     """Create a mock S3 bucket for testing"""
     with mock_aws():
@@ -97,7 +97,6 @@ class TestHealthEndpoints:
         assert data['service'] == 'S3 Image Manager'
         assert 'timestamp' in data
     
-    @mock_aws
     def test_health_s3_endpoint_healthy(self, client):
         """Test the /health/s3 endpoint when S3 is accessible"""
         # Create mock bucket
@@ -157,7 +156,6 @@ class TestUploadRoute:
         assert response.status_code == 200
         assert b'Invalid file type' in response.data
     
-    @mock_aws
     def test_upload_valid_file(self, client):
         """Test successful file upload"""
         # Create mock bucket
@@ -183,8 +181,7 @@ class TestUploadRoute:
 
 class TestAPIEndpoints:
     """Tests for API endpoints"""
-    
-    @mock_aws
+
     def test_api_images_empty(self, client):
         """Test API images endpoint with empty bucket"""
         s3 = boto3.client('s3', region_name='us-east-1')
@@ -195,8 +192,7 @@ class TestAPIEndpoints:
         data = json.loads(response.data)
         assert data['count'] == 0
         assert data['images'] == []
-    
-    @mock_aws
+
     def test_api_images_with_files(self, client):
         """Test API images endpoint with files in bucket"""
         s3 = boto3.client('s3', region_name='us-east-1')
@@ -231,7 +227,6 @@ class TestAPIEndpoints:
 class TestDeleteRoute:
     """Tests for delete functionality"""
     
-    @mock_aws
     def test_delete_file(self, client):
         """Test deleting a file from S3"""
         s3 = boto3.client('s3', region_name='us-east-1')
@@ -245,7 +240,6 @@ class TestDeleteRoute:
         objects = s3.list_objects_v2(Bucket='test-bucket')
         assert 'Contents' not in objects or len(objects['Contents']) == 0
     
-    @mock_aws
     def test_api_delete_file(self, client):
         """Test API delete endpoint"""
         s3 = boto3.client('s3', region_name='us-east-1')
@@ -261,7 +255,6 @@ class TestDeleteRoute:
 class TestDownloadRoute:
     """Tests for download functionality"""
     
-    @mock_aws
     def test_download_file(self, client):
         """Test downloading a file from S3"""
         s3 = boto3.client('s3', region_name='us-east-1')
@@ -280,4 +273,3 @@ class TestDownloadRoute:
 
 if __name__ == '__main__':
     pytest.main(['-v', '--cov=app', '--cov-report=html'])
-
