@@ -21,7 +21,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 def get_s3_client():
     """Create and return an S3 client"""
     try:
-        s3_client = boto3.client('s3', region_name='ap-south-2')
+        s3_client = boto3.client('s3')
         return s3_client
     except NoCredentialsError:
         return None
