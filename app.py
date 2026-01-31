@@ -45,8 +45,8 @@ def index():
     try:
         s3_client = get_s3_client()
         if s3_client:
-            bucket_name = app.config['bucket-onkar9834']
-            response = s3_client.list_objects_v2(bucket-onkar9834)
+            bucket_name = app.config['S3_BUCKET_NAME']
+            response = s3_client.list_objects_v2(Bucket=bucket_name)
             
             if 'Contents' in response:
                 for obj in response['Contents']:
@@ -301,4 +301,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     app.run(host='0.0.0.0', port=port, debug=debug)
-
