@@ -21,7 +21,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'}
 def get_s3_client():
     """Create and return an S3 client"""
     try:
-        s3_client = boto3.client('s3', region_name='us-east-1')
+        s3_client = boto3.client('s3', region_name='ap-south-2')
         return s3_client
     except NoCredentialsError:
         return None
@@ -45,8 +45,8 @@ def index():
     try:
         s3_client = get_s3_client()
         if s3_client:
-            bucket_name = app.config['S3_BUCKET_NAME']
-            response = s3_client.list_objects_v2(Bucket=bucket_name)
+            bucket_name = app.config['bucket-onkar9834']
+            response = s3_client.list_objects_v2(bucket-onkar9834)
             
             if 'Contents' in response:
                 for obj in response['Contents']:
