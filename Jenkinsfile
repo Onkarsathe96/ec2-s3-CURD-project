@@ -144,7 +144,7 @@ pipeline {
                     export PORT=5001
 
                     cd ec2-s3-CURD-project
-                    python app.py &
+                    python3 app.py &
                     APP_PID=$!
                     
                     # Wait for app to start
