@@ -143,9 +143,9 @@ pipeline {
                     export FLASK_DEBUG=false
                     export PORT=5001
 
-                    pwd
+                    sh 'pwd'
                     cd ec2-s3-CURD-project
-                    pwd
+                    sh 'pwd'
                     python app.py &
                     APP_PID=$!
                     
